@@ -1,0 +1,44 @@
+{#
+    Due to the fact that custom fields response only the id of a media
+    we have to create this helper. Links were opened in the same tab.
+    
+    ids => array | required | even if you want to requets only one
+    mediaLinks => array | required | even if you want to requets only one - doesnt need to have the same length as mediaids array. if you want to have only the first and third (f.e.) having an id just give the second index a null.
+    context => shopContext | required
+    mediaClasses => string
+    linkClasses => string
+    
+    HOW TO CALL:
+    {% sw_include '@Storefront/storefront/_helper/stm-get-image-by-id.html.twig' ignore missing with {
+        'context' : context,
+        'ids' : [ 'ID', 'ID', 'ID' ],
+        'mediaClasses' : 'ANYCLASS',
+        'mediaLinks' : [ 'ID', null, 'ID' ],
+        'linkClasses' : 'ANYOTHERCLASS'
+    } %}
+#}
+
+{% block stm_get_image_by_id %}
+    {% set mediaCollection = searchMedia(ids, context.context) %}
+    {% set index = 0 %}
+    
+    {% for id in ids %}
+        {% set media = mediaCollection.get(id) %}
+
+        {% block stm_get_image_by_id_image_container %}
+            {% if mediaLinks and mediaLinks|length > index and mediaLinks[index] != null %}
+            <a href="{{ mediaLinks[index] }}" class="{{ linkClasses }}">
+            {% endif %}
+
+                {% block stm_get_image_by_id_image %}
+                    <img src="{{ media.url }}" class="{{ mediaClasses }}" alt="{{ media.translated.alt }}" title="{{ media.translated.title }}">
+                {% endblock %}
+
+            {% if mediaLinks and mediaLinks|length > index and mediaLinks[index] != null %}
+            </a>
+            {% endif %}
+        {% endblock %}
+
+        {% set index = index + 1 %}
+    {% endfor %}
+{% endblock %}
