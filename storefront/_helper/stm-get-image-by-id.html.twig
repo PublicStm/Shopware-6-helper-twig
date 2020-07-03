@@ -17,28 +17,39 @@
         'linkClasses' : 'ANYOTHERCLASS'
     } %}
 #}
-
 {% block stm_get_image_by_id %}
-    {% set mediaCollection = searchMedia(ids, context.context) %}
-    {% set index = 0 %}
+    {% if ids|length > 0 and ids != null %}
+        {% set filteredIds = [] %}
     
-    {% for id in ids %}
-        {% set media = mediaCollection.get(id) %}
-
-        {% block stm_get_image_by_id_image_container %}
-            {% if mediaLinks and mediaLinks|length > index and mediaLinks[index] != null %}
-            <a href="{{ mediaLinks[index] }}" class="{{ linkClasses }}">
+        {% for id in ids %}
+            {% if id != null %}
+                {% set filteredIds = filteredIds|merge([ id ]) %}
             {% endif %}
+        {% endfor %}
 
-                {% block stm_get_image_by_id_image %}
-                    <img src="{{ media.url }}" class="{{ mediaClasses }}" alt="{{ media.translated.alt }}" title="{{ media.translated.title }}">
+        {% if filteredIds|length > 0 %}
+            {% set mediaCollection = searchMedia(filteredIds, context.context) %}
+            {% set index = 0 %}
+
+            {% for id in filteredIds %}
+                {% set media = mediaCollection.get(id) %}
+
+                {% block stm_get_image_by_id_image_container %}
+                    {% if mediaLinks and mediaLinks|length > index and mediaLinks[index] != null %}
+                    <a href="{{ mediaLinks[index] }}" class="{{ linkClasses }}">
+                    {% endif %}
+
+                        {% block stm_get_image_by_id_image %}
+                            <img src="{{ media.url }}" class="{{ mediaClasses }}" alt="{{ media.translated.alt }}" title="{{ media.translated.title }}">
+                        {% endblock %}
+
+                    {% if mediaLinks and mediaLinks|length > index and mediaLinks[index] != null %}
+                    </a>
+                    {% endif %}
                 {% endblock %}
 
-            {% if mediaLinks and mediaLinks|length > index and mediaLinks[index] != null %}
-            </a>
-            {% endif %}
-        {% endblock %}
-
-        {% set index = index + 1 %}
-    {% endfor %}
+                {% set index = index + 1 %}
+            {% endfor %}
+        {% endif %}
+    {% endif %}
 {% endblock %}
